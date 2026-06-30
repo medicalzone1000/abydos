@@ -603,4 +603,166 @@
     $('postThumb').value = post.thumbnail || '';
     $('postContent').value = post.content || '';
     $('postPreview').value = post.content_preview || '';
-    $('charCount').text
+    $('charCount').textContent = (post.content || '').length;
+    updateThumbPreview(post.thumbnail || '');
+    clearErrors();
+    $('modalTitle').innerHTML = '<i class="fas fa-edit"></i> تعديل المقال';
+    openModal();
+  }
+
+  $('modalClose').addEventListener('click', closeModal);
+  $('cancelModalBtn').addEventListener('click', closeModal);
+  $('postModal').addEventListener('click', e => { if (e.target === $('postModal')) closeModal(); });
+
+  function updateThumbPreview(url) {
+    const preview = $('thumbPreview');
+    const img = $('thumbImg');
+    if (url && url.startsWith('http')) {
+      img.src = url;
+      img.onload = () => preview.classList.add('show');
+      img.onerror = () => preview.classList.remove('show');
+    } else { preview.classList.remove('show'); }
+  }
+  let thumbTimer = null;
+  $('postThumb').addEventListener('input', e => {
+    clearTimeout(thumbTimer);
+    thumbTimer = setTimeout(() => updateThumbPreview(e.target.value.trim()), 600);
+  });
+
+  $('postContent').addEventListener('input', e => { $('charCount').textContent = e.target.value.length; });
+
+  window.insertTag = function(tag) {
+    const ta = $('postContent');
+    const start = ta.selectionStart, end = ta.selectionEnd;
+    const selected = ta.value.substring(start, end);
+    const replacement = `<${tag}>${selected}</${tag}>`;
+    ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
+    ta.focus();
+    ta.selectionStart = ta.selectionEnd = start + replacement.length;
+    $('charCount').textContent = ta.value.length;
+  };
+
+  window.insertLink = function() {
+    const url = prompt('أدخل الرابط:'); if (!url) return;
+    const text = prompt('نص الرابط:', 'اضغط هنا');
+    insertCustom(`<a href="${url}">${text || url}</a>`);
+  };
+
+  window.insertImage = function() {
+    const url = prompt('أدخل رابط الصورة:'); if (!url) return;
+    insertCustom(`<img src="${url}" alt="" style="max-width:100%;">`);
+  };
+
+  window.clearContent = function() {
+    if (confirm('هل تريد مسح كل المحتوى؟')) { $('postContent').value = ''; $('charCount').textContent = '0'; }
+  };
+
+  function insertCustom(html) {
+    const ta = $('postContent');
+    const start = ta.selectionStart;
+    ta.value = ta.value.substring(0, start) + html + ta.value.substring(start);
+    ta.focus();
+    $('charCount').textContent = ta.value.length;
+  }
+
+  function clearErrors() {
+    document.querySelectorAll('.field-error').forEach(el => el.classList.remove('show'));
+    document.querySelectorAll('.field-input').forEach(el => el.classList.remove('error'));
+  }
+
+  function validateForm() {
+    let valid = true;
+    if (!$('postTitle').value.trim()) { $('titleError').classList.add('show'); $('postTitle').classList.add('error'); valid = false; }
+    if (!$('postSection').value) { $('catError').classList.add('show'); $('postSection').classList.add('error'); valid = false; }
+    return valid;
+  }
+
+  $('savePostBtn').addEventListener('click', async () => {
+    clearErrors();
+    if (!validateForm()) return;
+
+    const id = $('editId').value;
+    const title = $('postTitle').value.trim();
+    const section = $('postSection').value;
+    const extraTags = $('postCategories').value.split(',').map(c => c.trim()).filter(Boolean);
+    const cats = [section, ...extraTags.filter(t => t !== section)];
+    const date = $('postDate').value;
+    const thumb = $('postThumb').value.trim();
+    const content = $('postContent').value;
+    const preview = $('postPreview').value.trim();
+    const newId = id || Date.now().toString();
+    const imgCount = (content.match(/<img/gi) || []).length;
+
+    const postObj = { id: newId, title, section, categories: cats, published: date ? new Date(date).toISOString() : new Date().toISOString(), thumbnail: thumb, content, content_preview: preview, image_count: imgCount, original_url: '' };
+
+    if (id) {
+      const idx = state.postsData.posts.findIndex(p => p.id == id);
+      if (idx !== -1) state.postsData.posts[idx] = postObj;
+    } else {
+      state.postsData.posts.unshift(postObj);
+    }
+
+    closeModal();
+    await savePosts(id ? 'تم تحديث المقال بنجاح' : 'تم نشر المقال بنجاح');
+    updateStats();
+    renderTable();
+  });
+
+  function openDeleteConfirm(id) { state.deleteTargetId = id; $('confirmDialog').classList.add('open'); }
+  $('cancelDelete').addEventListener('click', () => { $('confirmDialog').classList.remove('open'); state.deleteTargetId = null; });
+  $('confirmDelete').addEventListener('click', async () => {
+    $('confirmDialog').classList.remove('open');
+    const id = state.deleteTargetId;
+    state.postsData.posts = state.postsData.posts.filter(p => p.id != id);
+    await savePosts('تم حذف المقال');
+    updateStats();
+    renderTable();
+    state.deleteTargetId = null;
+  });
+
+  $('refreshBtn').addEventListener('click', async () => {
+    setSaving('جاري تحديث البيانات...');
+    await loadPosts();
+    hideSaving();
+    updateStats();
+    renderTable();
+    showAlert('success', 'تم تحديث البيانات');
+  });
+
+  $('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('abydos_token');
+    localStorage.removeItem('abydos_auth');
+    state.token = '';
+    state.postsData = { posts: [] };
+    showLoginPanel();
+  });
+
+  $('sidebarToggle').addEventListener('click', () => { $('sidebar').classList.toggle('open'); });
+
+  async function tryAutoLogin() {
+    const savedToken = localStorage.getItem('abydos_token');
+    const savedAuth = localStorage.getItem('abydos_auth');
+
+    if (savedToken && savedAuth === 'true') {
+      try {
+        const test = await fetch('https://api.github.com/user', { headers: { 'Authorization': `token ${savedToken}` } });
+        if (test.ok) {
+          state.token = savedToken;
+          showAdminPanel();
+          await loadPosts();
+          updateStats();
+          renderTable();
+          return;
+        }
+      } catch(e) {}
+      localStorage.removeItem('abydos_token');
+      localStorage.removeItem('abydos_auth');
+    }
+    showLoginPanel();
+  }
+
+  tryAutoLogin();
+})();
+</script>
+</body>
+</html>
