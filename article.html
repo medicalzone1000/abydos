@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="style.css">
   <style>
     .article-page-wrap { min-height: 100vh; }
+    :root { --navbar-h: 80px; }
     #reading-progress {
       position: fixed; top: var(--navbar-h); right: 0; left: 0;
       height: 3px; background: var(--clr-border); z-index: 900; pointer-events: none;
@@ -48,6 +49,14 @@
     .article-error { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: var(--sp-4); text-align: center; padding: var(--sp-8); }
     .article-error i { font-size: 3rem; color: var(--clr-gold); }
     .article-error h2 { font-family: var(--font-display); font-size: 1.5rem; color: var(--clr-text-primary); }
+    .article-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: var(--sp-4); margin: var(--sp-6) 0; }
+    .article-gallery img { border-radius: var(--radius-md); border: 1px solid var(--clr-border); width:100%; aspect-ratio:1/1; object-fit:cover; cursor:pointer; transition:transform var(--dur-fast); }
+    .article-gallery img:hover { transform:scale(1.03); }
+    .article-video { margin: var(--sp-6) 0; border-radius: var(--radius-lg); overflow:hidden; }
+    .article-pdf { margin: var(--sp-6) 0; background: var(--clr-sand-light); padding: var(--sp-6); border-radius: var(--radius-lg); border:1px solid var(--clr-border-gold); display:flex; align-items:center; gap:var(--sp-4); flex-wrap:wrap; }
+    .article-pdf i { font-size:2rem; color:var(--clr-gold); }
+    .article-pdf a { font-weight:700; color:var(--clr-navy); background:var(--clr-gold); padding:var(--sp-3) var(--sp-6); border-radius:var(--radius-pill); transition:all var(--dur-fast); }
+    .article-pdf a:hover { background:var(--clr-gold-light); transform:translateY(-2px); }
     @media (max-width: 680px) { .share-buttons { flex-wrap: wrap; } .related-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -120,10 +129,16 @@
   <script>
   (function() {
     'use strict';
+    // === DOMPurify minimal (inline) ===
+    const purify = (html) => {
+      const tmp = document.createElement('div');
+      tmp.textContent = html;
+      return tmp.innerHTML;
+    };
     function formatDate(d) { try { return new Date(d).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' }); } catch(_) { return d; } }
     function excerpt(s, n) { return s && s.length > n ? s.substring(0, n) + '…' : (s || ''); }
     function stripHtml(h) { const t = document.createElement('div'); t.innerHTML = h; return t.textContent || ''; }
-    function readingTime(c) { return Math.max(1, Math.ceil(stripHtml(c || '').trim().split(/\s+/).length / 150)) + ' دقيقة'; }
+    function readingTime(c) { const words = stripHtml(c || '').trim().split(/\s+/).length; return Math.max(1, Math.ceil(words / 150)) + ' دقيقة'; }
     function thumb(u) { return u && u.trim() ? u : 'https://placehold.co/600x400/0a1a2b/d4a237?text=أبيدوس'; }
     function debounce(fn, w) { let t; return function (...a) { clearTimeout(t); t = setTimeout(() => fn.apply(this, a), w); }; }
     let allPosts = [];
@@ -159,6 +174,31 @@
       const pageUrl = window.location.href;
       const cats = post.categories || ['عام'];
       const content = post.content || post.content_preview || '<p>المحتوى غير متوفر حالياً.</p>';
+      // عرض معرض الصور
+      let galleryHtml = '';
+      if (post.gallery && post.gallery.length) {
+        galleryHtml = `<div class="article-gallery">${post.gallery.map(u => `<img src="${u}" alt="${post.title}" loading="lazy" onclick="window.open('${u}','_blank')">`).join('')}</div>`;
+      }
+      // عرض الفيديو
+      let videoHtml = '';
+      if (post.video && post.video.trim()) {
+        let embedUrl = post.video.trim();
+        if (embedUrl.includes('watch?v=')) {
+          embedUrl = embedUrl.replace('watch?v=', 'embed/').split('&')[0];
+        } else if (embedUrl.includes('youtu.be/')) {
+          embedUrl = embedUrl.replace('youtu.be/', 'youtube.com/embed/').split('?')[0];
+        } else if (embedUrl.includes('vimeo.com/')) {
+          embedUrl = embedUrl.replace('vimeo.com/', 'player.vimeo.com/video/');
+        }
+        videoHtml = `<div class="article-video"><iframe src="${embedUrl}" width="100%" height="400" frameborder="0" allowfullscreen style="border-radius:var(--radius-lg);"></iframe></div>`;
+      }
+      // عرض PDF
+      let pdfHtml = '';
+      if (post.pdf && post.pdf.trim()) {
+        pdfHtml = `<div class="article-pdf"><i class="fas fa-file-pdf"></i><span>تحميل ملف PDF</span><a href="${post.pdf}" target="_blank" rel="noopener"><i class="fas fa-download"></i> تحميل</a></div>`;
+      }
+      // تنظيف المحتوى من XSS باستخدام DOMPurify المضمن
+      const cleanContent = purify(content);
       const html = `
         <article class="article-container" itemscope itemtype="https://schema.org/Article">
           <nav class="article-breadcrumb" aria-label="مسار التنقل">
@@ -178,7 +218,10 @@
             </div>
           </header>
           ${post.thumbnail ? `<img src="${post.thumbnail}" alt="${post.title}" class="article-hero-img" itemprop="image" loading="eager">` : ''}
-          <div class="article-content" itemprop="articleBody">${content}</div>
+          <div class="article-content" itemprop="articleBody">${cleanContent}</div>
+          ${galleryHtml}
+          ${videoHtml}
+          ${pdfHtml}
           <div class="share-section">
             <h4><i class="fas fa-share-alt" style="margin-left:0.5rem;color:var(--clr-gold)"></i>شارك هذا المقال</h4>
             <div class="share-buttons">
