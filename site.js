@@ -38,7 +38,7 @@
 
   async function fetchPosts() {
     if (allPosts.length) return allPosts;
-    const res = await fetch('posts.json');
+    const res = await fetch('posts.json?t=' + Date.now(), { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     allPosts = (data.posts || []).sort((a, b) => new Date(b.published) - new Date(a.published));
