@@ -972,7 +972,7 @@
   'use strict';
 
   const REPO_OWNER = 'medicalzone1000';
-  const REPO_NAME  = 'indigena'; // اسم المستودع
+  const REPO_NAME  = 'indigena';
   const FILE_PATH  = 'posts.json';
   const ADMIN_PWD  = 'Abydos2025';
   const ROWS_PER_PAGE = 12;
@@ -1038,8 +1038,8 @@
   // === تحميل البيانات ===
   async function loadPosts() {
     try {
-      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
-      const res = await fetch(url, { headers: { 'Authorization': `token ${state.token}` } });
+      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?t=${Date.now()}`;
+      const res = await fetch(url, { headers: { 'Authorization': `token ${state.token}` }, cache: 'no-store' });
       if (res.status === 404) { state.postsData = { posts: [] }; return; }
       const data = await res.json();
       const b64clean = data.content.replace(/\n/g, '');
@@ -1053,7 +1053,6 @@
   async function savePosts(successMsg = 'تم الحفظ بنجاح') {
     setSaving('جاري الحفظ...');
     try {
-      // رفع الملفات المرفقة (thumb, gallery, pdf)
       const thumbFile = $('thumbFileInput').files[0];
       const galleryFiles = $('galleryFileInput').files;
       const pdfFile = $('pdfFileInput').files[0];
@@ -1063,14 +1062,12 @@
       let galleryUrls = [];
       let pdfUrl = $('postPdf').value.trim();
 
-      // رفع الصورة المصغرة
       if (thumbFile) {
         const ext = thumbFile.name.split('.').pop();
         const path = `assets/${Date.now()}_thumb.${ext}`;
         thumbUrl = await uploadFile(thumbFile, path);
       }
 
-      // رفع صور المعرض
       for (let i = 0; i < galleryFiles.length; i++) {
         const file = galleryFiles[i];
         const ext = file.name.split('.').pop();
@@ -1079,14 +1076,12 @@
         galleryUrls.push(url);
       }
 
-      // رفع PDF
       if (pdfFile) {
         const ext = pdfFile.name.split('.').pop();
         const path = `assets/${Date.now()}_pdf.${ext}`;
         pdfUrl = await uploadFile(pdfFile, path);
       }
 
-      // إعداد كائن المقال
       const id = editId || Date.now().toString();
       const title = $('postTitle').value.trim();
       const section = $('postSection').value;
@@ -1120,7 +1115,6 @@
         state.postsData.posts.unshift(postObj);
       }
 
-      // حفظ posts.json
       const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
       const getRes = await fetch(url, { headers: { 'Authorization': `token ${state.token}` } });
       let sha = null;
@@ -1236,7 +1230,6 @@
     $('galleryFileName').textContent = 'لم يتم اختيار ملفات';
     $('pdfFileName').textContent = 'لم يتم اختيار ملف';
     $('galleryPreview').innerHTML = '';
-    // reset file inputs
     $('thumbFileInput').value = '';
     $('galleryFileInput').value = '';
     $('pdfFileInput').value = '';
@@ -1265,7 +1258,6 @@
     $('galleryPreview').innerHTML = (post.gallery || []).map(url => `
       <div class="media-preview-item"><img src="${url}" alt=""><button class="remove-media" data-url="${url}"><i class="fas fa-times"></i></button></div>
     `).join('');
-    // يمكن إضافة معاينة الصورة المصغرة
     updateThumbPreview(post.thumbnail || '');
     clearErrors();
     $('modalTitle').innerHTML = '<i class="fas fa-edit"></i> تعديل المقال';
@@ -1307,7 +1299,6 @@
       }
       if (id === 'galleryUploadArea') {
         fileNameEl.textContent = `تم اختيار ${input.files.length} ملف(ات)`;
-        // عرض معاينة للمعرض
         const preview = $('galleryPreview');
         preview.innerHTML = '';
         for (let f of input.files) {
@@ -1387,8 +1378,9 @@
     if (!validateForm()) return;
     const id = $('editId').value;
     await savePosts(id ? 'تم تحديث المقال بنجاح' : 'تم نشر المقال بنجاح');
-    closeModal();
+    await loadPosts(); // تحديث البيانات من GitHub
     renderTable();
+    closeModal();
   });
 
   function openDeleteConfirm(id) { state.deleteTargetId = id; $('confirmDialog').classList.add('open'); }
@@ -1398,6 +1390,7 @@
     const id = state.deleteTargetId;
     state.postsData.posts = state.postsData.posts.filter(p => p.id != id);
     await savePosts('تم حذف المقال');
+    await loadPosts(); // تحديث البيانات من GitHub
     renderTable();
     state.deleteTargetId = null;
   });
