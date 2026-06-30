@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Abydos • مدونة الثقافة والتراث</title>
+  <meta name="description" content="مدونة Abydos: رحلة في عمق التاريخ والثقافة والفكر المصري القديم.">
+  <meta name="theme-color" content="#0f1e3a">
+  <meta property="og:title" content="Abydos • مدونة الثقافة والتراث">
+  <meta property="og:description" content="استكشف حضارة مصر الخالدة من خلال مقالات معمقة عن التاريخ والآثار والفنون.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ar_AR">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Scroll Progress Bar -->
+  <div id="scroll-progress"></div>
+
+  <!-- Back to Top -->
+  <button id="back-to-top" aria-label="العودة للأعلى">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header" role="banner">
+    <div class="header-main">
+      <a href="index.html" class="logo logo-img" aria-label="Abydos الرئيسية">
+        <div style="display:flex;align-items:center;gap:12px;background:transparent;padding:0 10px;">
+          <i class="fas fa-ankh" style="font-size:2.2rem;color:var(--clr-gold);"></i>
+          <span style="font-family:var(--font-display);font-size:1.8rem;font-weight:900;color:#fdf6ec;letter-spacing:2px;">ABYDOS</span>
+        </div>
+      </a>
+
+      <nav class="main-nav" role="navigation" aria-label="التنقل الرئيسي">
+        <div class="nav-inner">
+          <a href="index.html" class="nav-link active"><i class="fas fa-home"></i> الرئيسية</a>
+          <a href="category.html?cat=%D8%B2%D8%A7%D8%A6%D8%B1" class="nav-link"><i class="fas fa-user-friends"></i> زائر</a>
+          <a href="category.html?cat=%D9%85%D8%B2%D8%A7%D8%B1" class="nav-link"><i class="fas fa-archway"></i> مزار</a>
+          <a href="category.html?cat=%D9%85%D9%82%D8%A7%D8%A8%D9%84%D8%A7%D8%AA" class="nav-link"><i class="fas fa-microphone"></i> مقابلات</a>
+          <a href="category.html?cat=%D9%81%D8%B9%D8%A7%D9%84%D9%8A%D8%A7%D8%AA" class="nav-link"><i class="fas fa-calendar-check"></i> فعاليات</a>
+          <a href="category.html?cat=%D9%88%D8%AC%D9%88%D9%87" class="nav-link"><i class="fas fa-user-tie"></i> وجوه</a>
+          <a href="category.html?cat=%D8%B1%D8%A3%D9%8A" class="nav-link"><i class="fas fa-pen-fancy"></i> رأي</a>
+          <button class="nav-search-btn" id="searchIconNav" aria-label="بحث">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </nav>
+
+      <button class="mobile-menu-btn" aria-label="فتح القائمة" aria-expanded="false">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Nav Overlay -->
+  <div class="mobile-nav-overlay" role="dialog" aria-label="قائمة التنقل">
+    <button class="mobile-nav-close" aria-label="إغلاق القائمة"><i class="fas fa-times"></i></button>
+    <a href="index.html">الرئيسية</a>
+    <a href="category.html?cat=%D8%B2%D8%A7%D8%A6%D8%B1"><i class="fas fa-user-friends"></i> زائر</a>
+    <a href="category.html?cat=%D9%85%D8%B2%D8%A7%D8%B1"><i class="fas fa-archway"></i> مزار</a>
+    <a href="category.html?cat=%D9%85%D9%82%D8%A7%D8%A8%D9%84%D8%A7%D8%AA"><i class="fas fa-microphone"></i> مقابلات</a>
+    <a href="category.html?cat=%D9%81%D8%B9%D8%A7%D9%84%D9%8A%D8%A7%D8%AA"><i class="fas fa-calendar-check"></i> فعاليات</a>
+    <a href="category.html?cat=%D9%88%D8%AC%D9%88%D9%87"><i class="fas fa-user-tie"></i> وجوه</a>
+    <a href="category.html?cat=%D8%B1%D8%A3%D9%8A"><i class="fas fa-pen-fancy"></i> رأي</a>
+    <a href="#" id="mobileSearchOpen">البحث <i class="fas fa-search"></i></a>
+  </div>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero" aria-label="قسم الترحيب">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <i class="fas fa-ankh" style="font-size:0.7rem;"></i>
+        أبو الهول ينتظرك
+      </div>
+      <h1 class="hero-title">
+        ABYDOS<br>
+        <em>مدونة الثقافة والتراث</em>
+      </h1>
+      <p class="hero-subtitle">
+        استكشف حضارة مصر الخالدة من خلال مقالات معمقة عن التاريخ والآثار والفنون والفكر.
+      </p>
+      <div class="hero-buttons">
+        <button class="hero-btn primary" id="exploreBtn">
+          استكشف <i class="fas fa-arrow-left"></i>
+        </button>
+        <button class="hero-btn secondary" id="latestBtn">
+          أحدث المقالات <i class="fas fa-newspaper"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="num" id="heroPostCount">—</span>
+        <span class="lbl">مقال منشور</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num" id="heroCatCount">—</span>
+        <span class="lbl">أقسام</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">1000+</span>
+        <span class="lbl">قارئ</span>
+      </div>
+    </div>
+
+    <div class="hero-scroll-indicator" aria-hidden="true">
+      <span>تمرير</span>
+      <i class="fas fa-chevron-down"></i>
+    </div>
+  </section>
+
+  <!-- ===== STATS RIBBON ===== -->
+  <section class="stats-ribbon" aria-label="إحصائيات المنصة">
+    <div class="stats-ribbon-inner" id="statsRibbon">
+      <div class="stat-item">
+        <i class="fas fa-scroll"></i>
+        <div>
+          <strong id="statPosts">—</strong>
+          <span>مقال ودراسة</span>
+        </div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <i class="fas fa-ankh"></i>
+        <div>
+          <strong>6</strong>
+          <span>أقسام رئيسية</span>
+        </div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <i class="fas fa-users"></i>
+        <div>
+          <strong>1000+</strong>
+          <span>متابع</span>
+        </div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <i class="fas fa-landmark"></i>
+        <div>
+          <strong>5</strong>
+          <span>عصور تاريخية</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURED POSTS — Magazine Layout ===== -->
+  <section class="featured-posts" aria-label="أبرز المقالات">
+    <div class="container">
+      <div class="section-header" data-aos="fade-up">
+        <span class="section-eyebrow">مختارات التحرير</span>
+        <h2>أبرز المقالات</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="featured-grid" id="featuredGrid">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TRENDING ROW ===== -->
+  <section class="trending-section" aria-label="الأكثر قراءة">
+    <div class="container">
+      <div class="trending-header" data-aos="fade-up">
+        <span class="trending-badge"><i class="fas fa-fire"></i> رائج</span>
+        <h3>الأكثر قراءة هذا الأسبوع</h3>
+        <a href="#mainPosts" class="trending-see-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
+      </div>
+      <div class="trending-list" id="trendingList">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CATEGORIES SHOWCASE ===== -->
+  <section class="categories-showcase" aria-label="استكشف بالأقسام">
+    <div class="container">
+      <div class="section-header" data-aos="fade-up">
+        <span class="section-eyebrow" style="color:var(--clr-gold-light);">أقسام المدونة</span>
+        <h2>استكشف بالأقسام</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="categories-grid" id="categoriesGrid">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== LATEST POSTS with FILTER ===== -->
+  <main id="mainPosts" aria-label="أحدث المقالات">
+    <div class="container">
+      <div class="section-header" data-aos="fade-up">
+        <span class="section-eyebrow">الأحدث</span>
+        <h2>أحدث المقالات</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <!-- Filter chips -->
+      <div class="filter-bar" id="quickCategories" data-aos="fade-up">
+        <!-- Filled by JS -->
+      </div>
+
+      <div class="posts-grid" id="postsGrid">
+        <!-- Skeletons shown by JS while loading -->
+      </div>
+
+      <!-- Load more -->
+      <div class="load-more-wrap" data-aos="fade-up">
+        <button class="load-more-btn" id="loadMoreBtn">
+          <i class="fas fa-plus-circle"></i> تحميل المزيد
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== NEWSLETTER BANNER ===== -->
+  <section class="newsletter-banner" aria-label="النشرة البريدية">
+    <div class="nl-bg"></div>
+    <div class="nl-content" data-aos="fade-up">
+      <div class="nl-icon"><i class="fas fa-ankh"></i></div>
+      <h2>ابقَ على اتصال</h2>
+      <p>اشترك في نشرتنا الأسبوعية لتصلك أبرز التقارير والقصص الحصرية عن تاريخ وثقافة مصر.</p>
+      <form id="newsletterFormBanner" class="nl-form" novalidate>
+        <input type="email" placeholder="بريدك الإلكتروني" required aria-label="البريد الإلكتروني">
+        <button type="submit">اشترك الآن <i class="fas fa-paper-plane"></i></button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-container">
+      <div class="footer-about">
+        <a href="index.html" class="logo" style="margin-bottom:1rem;text-decoration:none;display:flex;align-items:center;gap:10px;">
+          <i class="fas fa-ankh" style="font-size:1.8rem;color:var(--clr-gold);"></i>
+          <span style="font-family:var(--font-display);font-size:1.6rem;font-weight:900;color:#fdf6ec;">ABYDOS</span>
+        </a>
+        <p>مدونة تستكشف عمق الحضارة المصرية، من أهرامات الجيزة إلى معابد أبيدوس، ومن فلسفة الفراعنة إلى إبداعات العصر الحديث.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>روابط سريعة</h4>
+        <ul>
+          <li><a href="index.html">الرئيسية</a></li>
+          <li><a href="#">اتصل بنا</a></li>
+          <li><a href="#">سياسة الخصوصية</a></li>
+          <li><a href="#">من نحن</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col" id="footerCategories">
+        <h4>الأقسام</h4>
+        <ul></ul>
+      </div>
+
+      <div class="footer-col footer-newsletter">
+        <h4>النشرة البريدية</h4>
+        <p>اشترك لتصلك أبرز التقارير والقصص الحصرية أسبوعياً.</p>
+        <form id="newsletterForm" class="newsletter-form" novalidate>
+          <input type="email" placeholder="بريدك الإلكتروني" required aria-label="البريد الإلكتروني">
+          <button type="submit" aria-label="اشترك"><i class="fas fa-paper-plane"></i></button>
+        </form>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2025 Abydos. جميع الحقوق محفوظة.</p>
+      <div>
+        <a href="#">سياسة الخصوصية</a>
+        &nbsp;·&nbsp;
+        <a href="#">شروط الاستخدام</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== SEARCH OVERLAY ===== -->
+  <div class="search-overlay" id="searchOverlay" role="dialog" aria-label="البحث" aria-modal="true">
+    <div class="search-modal">
+      <div class="search-input-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="ابحث عن مقال أو تصنيف…" autocomplete="off" spellcheck="false" aria-label="حقل البحث">
+        <i class="fas fa-times close-search" id="closeSearch" role="button" tabindex="0" aria-label="إغلاق البحث"></i>
+      </div>
+      <div id="searchResults" role="listbox" aria-label="نتائج البحث"></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="site.js"></script>
+</body>
+</html>
