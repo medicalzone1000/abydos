@@ -1046,6 +1046,8 @@
       const bytes = Uint8Array.from(atob(b64clean), c => c.charCodeAt(0));
       const content = new TextDecoder('utf-8').decode(bytes);
       state.postsData = JSON.parse(content);
+      // تأكد من وجود مصفوفة posts
+      if (!state.postsData.posts) state.postsData.posts = [];
     } catch(e) { showAlert('danger', 'فشل تحميل البيانات: ' + e.message); }
   }
 
@@ -1099,8 +1101,8 @@
         categories: cats,
         published: date ? new Date(date).toISOString() : new Date().toISOString(),
         thumbnail: thumbUrl || '',
-        content,
-        content_preview: preview,
+        content: content || preview || '<p>المحتوى غير متوفر حالياً.</p>',
+        content_preview: preview || content.substring(0, 200) || '',
         image_count: imgCount,
         gallery: galleryUrls,
         video: $('postVideo').value.trim(),
@@ -1130,6 +1132,11 @@
       });
       if (!saveRes.ok) { const err = await saveRes.json(); throw new Error(err.message); }
       showAlert('success', successMsg);
+      // تحديث البيانات من GitHub بعد تأخير بسيط لضمان المزامنة
+      setTimeout(async () => {
+        await loadPosts();
+        renderTable();
+      }, 500);
     } catch(e) {
       showAlert('danger', 'خطأ في الحفظ: ' + e.message);
     } finally {
@@ -1167,11 +1174,11 @@
         const thumb = post.thumbnail || '';
         const dateStr = new Date(post.published).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
         tr.innerHTML = `
-          <td><div class="post-thumb-cell">${thumb ? `<img class="thumb-img" src="${thumb}" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}<div class="thumb-title">${(post.title || '').substring(0, 60)}${(post.title || '').length > 60 ? '...' : ''}</div></div></td>
+          <td><div class="post-thumb-cell">${thumb ? `<img class="thumb-img" src="${thumb}" alt="${post.title}" loading="lazy" onerror="this.style.display='none'">` : ''}<div class="thumb-title">${(post.title || '').substring(0, 60)}${(post.title || '').length > 60 ? '...' : ''}</div></div></td>
           <td><span class="cat-badge">${post.section || (post.categories || ['—'])[0]}</span></td>
           <td class="date-cell">${dateStr}</td>
           <td class="img-count">${post.image_count || 0}</td>
-          <td><div class="actions-cell"><button class="action-btn edit-btn" data-id="${post.id}" title="تعديل"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${post.id}" title="حذف"><i class="fas fa-trash-alt"></i></button></div></td>
+          <td><div class="actions-cell"><button class="action-btn edit-btn" data-id="${post.id}" title="تعديل" aria-label="تعديل المقال"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${post.id}" title="حذف" aria-label="حذف المقال"><i class="fas fa-trash-alt"></i></button></div></td>
         `;
         tbody.appendChild(tr);
       });
@@ -1211,7 +1218,18 @@
   });
 
   function openModal() { $('postModal').classList.add('open'); }
-  function closeModal() { $('postModal').classList.remove('open'); }
+  function closeModal() { 
+    $('postModal').classList.remove('open');
+    // تنظيف المعاينات
+    $('thumbPreview').classList.remove('show');
+    $('galleryPreview').innerHTML = '';
+    $('thumbFileInput').value = '';
+    $('galleryFileInput').value = '';
+    $('pdfFileInput').value = '';
+    $('thumbFileName').textContent = 'لم يتم اختيار ملف';
+    $('galleryFileName').textContent = 'لم يتم اختيار ملفات';
+    $('pdfFileName').textContent = 'لم يتم اختيار ملف';
+  }
 
   $('newPostBtn').addEventListener('click', () => {
     $('editId').value = '';
@@ -1378,8 +1396,7 @@
     if (!validateForm()) return;
     const id = $('editId').value;
     await savePosts(id ? 'تم تحديث المقال بنجاح' : 'تم نشر المقال بنجاح');
-    await loadPosts(); // تحديث البيانات من GitHub
-    renderTable();
+    // التحديث يتم داخل savePosts بعد التأخير
     closeModal();
   });
 
@@ -1390,8 +1407,7 @@
     const id = state.deleteTargetId;
     state.postsData.posts = state.postsData.posts.filter(p => p.id != id);
     await savePosts('تم حذف المقال');
-    await loadPosts(); // تحديث البيانات من GitHub
-    renderTable();
+    // التحديث يتم داخل savePosts
     state.deleteTargetId = null;
   });
 
