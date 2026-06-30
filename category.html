@@ -187,7 +187,7 @@
     function formatDate(str) { try { return new Date(str).toLocaleDateString('ar-EG', { year:'numeric', month:'short', day:'numeric' }); } catch(_) { return str; } }
     function readingTime(content) { if (!content) return '1 دقيقة'; const tmp = document.createElement('div'); tmp.innerHTML = content; const words = (tmp.textContent || '').trim().split(/\s+/).length; return Math.max(1, Math.ceil(words / 150)) + ' دقائق قراءة'; }
     function getSectionMeta(key) { return SECTIONS.find(s => s.key === key) || { icon: 'fa-layer-group', subtitle: '' }; }
-    async function loadData() { const res = await fetch('posts.json?v=' + Date.now()); const data = await res.json(); return data.posts || []; }
+    async function loadData() { const res = await fetch('posts.json?t=' + Date.now(), { cache: 'no-store' }); const data = await res.json(); return data.posts || []; }
     async function init() {
       const params = new URLSearchParams(window.location.search);
       state.currentSection = decodeURIComponent(params.get('cat') || '');
