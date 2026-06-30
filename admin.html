@@ -35,7 +35,6 @@
             min-height:100vh;
         }
 
-        /* === Login === */
         .login-wrapper { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; }
         .login-card {
             background:white;
@@ -145,7 +144,6 @@
         .login-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
         .login-error { color:var(--red); font-size:0.85rem; margin-top:0.8rem; display:none; background:rgba(181,58,42,0.08); padding:0.6rem 1rem; border-radius:var(--radius-sm); }
 
-        /* === Admin Layout === */
         .admin-layout { display:flex; min-height:100vh; }
         .sidebar {
             width:260px;
@@ -446,7 +444,6 @@
         }
         .page-btn:hover, .page-btn.active { background:var(--gold); border-color:var(--gold); color:white; }
 
-        /* Modal */
         .modal {
             position:fixed;
             inset:0;
@@ -553,7 +550,6 @@
         .thumb-preview img { width:100%; height:100%; object-fit:cover; }
         .thumb-preview.show { display:block; }
 
-        /* File upload styling */
         .file-upload-area {
             border:2px dashed var(--border);
             border-radius:12px;
@@ -865,7 +861,6 @@
         </div>
       </div>
 
-      <!-- حقل رفع الصورة المصغرة -->
       <div class="field-group">
         <label class="field-label">الصورة المصغرة</label>
         <div class="file-upload-area" id="thumbUploadArea">
@@ -879,7 +874,6 @@
         <div class="thumb-preview" id="thumbPreview"><img src="" alt="معاينة" id="thumbImg"></div>
       </div>
 
-      <!-- رفع صور إضافية (معرض) -->
       <div class="field-group">
         <label class="field-label">صور إضافية (معرض)</label>
         <div class="file-upload-area" id="galleryUploadArea">
@@ -892,14 +886,12 @@
         <div class="field-hint">سيتم رفع الصور إلى المستودع وإدراج روابطها في المقال</div>
       </div>
 
-      <!-- رابط فيديو -->
       <div class="field-group">
         <label class="field-label">رابط الفيديو</label>
         <input type="url" id="postVideo" class="field-input" placeholder="https://www.youtube.com/watch?v=..." dir="ltr">
         <div class="field-hint">أدخل رابط فيديو من YouTube أو Vimeo</div>
       </div>
 
-      <!-- رابط PDF أو رفع ملف PDF -->
       <div class="field-group">
         <label class="field-label">ملف PDF</label>
         <div class="file-upload-area" id="pdfUploadArea">
@@ -1046,8 +1038,6 @@
       const bytes = Uint8Array.from(atob(b64clean), c => c.charCodeAt(0));
       const content = new TextDecoder('utf-8').decode(bytes);
       state.postsData = JSON.parse(content);
-      // تأكد من وجود مصفوفة posts
-      if (!state.postsData.posts) state.postsData.posts = [];
     } catch(e) { showAlert('danger', 'فشل تحميل البيانات: ' + e.message); }
   }
 
@@ -1101,8 +1091,8 @@
         categories: cats,
         published: date ? new Date(date).toISOString() : new Date().toISOString(),
         thumbnail: thumbUrl || '',
-        content: content || preview || '<p>المحتوى غير متوفر حالياً.</p>',
-        content_preview: preview || content.substring(0, 200) || '',
+        content,
+        content_preview: preview,
         image_count: imgCount,
         gallery: galleryUrls,
         video: $('postVideo').value.trim(),
@@ -1117,28 +1107,57 @@
         state.postsData.posts.unshift(postObj);
       }
 
+      // حفظ الملف على GitHub
       const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
-      const getRes = await fetch(url, { headers: { 'Authorization': `token ${state.token}` } });
       let sha = null;
-      if (getRes.ok) { const d = await getRes.json(); sha = d.sha; }
+      try {
+        const getRes = await fetch(url, { 
+          headers: { 'Authorization': `token ${state.token}` },
+          cache: 'no-store'
+        });
+        if (getRes.ok) {
+          const data = await getRes.json();
+          sha = data.sha;
+        } else if (getRes.status === 404) {
+          sha = null;
+        } else {
+          const errText = await getRes.text();
+          throw new Error(`فشل جلب الملف: ${getRes.status} - ${errText}`);
+        }
+      } catch (e) {
+        throw new Error('خطأ في جلب الملف الحالي: ' + e.message);
+      }
+
       const jsonStr = JSON.stringify(state.postsData, null, 2);
       const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
-      const body = { message: `تحديث المحتوى ${new Date().toISOString()}`, content: b64, branch: 'main' };
+      const body = {
+        message: `تحديث المحتوى ${new Date().toISOString()}`,
+        content: b64,
+        branch: 'main'
+      };
       if (sha) body.sha = sha;
+
       const saveRes = await fetch(url, {
         method: 'PUT',
-        headers: { 'Authorization': `token ${state.token}`, 'Content-Type': 'application/json' },
+        headers: { 
+          'Authorization': `token ${state.token}`, 
+          'Content-Type': 'application/json' 
+        },
         body: JSON.stringify(body)
       });
-      if (!saveRes.ok) { const err = await saveRes.json(); throw new Error(err.message); }
+
+      if (!saveRes.ok) {
+        const errData = await saveRes.json();
+        throw new Error(`GitHub API: ${saveRes.status} - ${errData.message || 'خطأ غير معروف'}`);
+      }
+
       showAlert('success', successMsg);
-      // تحديث البيانات من GitHub بعد تأخير بسيط لضمان المزامنة
-      setTimeout(async () => {
-        await loadPosts();
-        renderTable();
-      }, 500);
-    } catch(e) {
+      // إعادة تحميل البيانات من GitHub (للتأكد من التزامن)
+      await loadPosts();
+      renderTable();
+    } catch (e) {
       showAlert('danger', 'خطأ في الحفظ: ' + e.message);
+      console.error('تفاصيل الخطأ:', e);
     } finally {
       hideSaving();
     }
@@ -1174,11 +1193,11 @@
         const thumb = post.thumbnail || '';
         const dateStr = new Date(post.published).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
         tr.innerHTML = `
-          <td><div class="post-thumb-cell">${thumb ? `<img class="thumb-img" src="${thumb}" alt="${post.title}" loading="lazy" onerror="this.style.display='none'">` : ''}<div class="thumb-title">${(post.title || '').substring(0, 60)}${(post.title || '').length > 60 ? '...' : ''}</div></div></td>
+          <td><div class="post-thumb-cell">${thumb ? `<img class="thumb-img" src="${thumb}" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}<div class="thumb-title">${(post.title || '').substring(0, 60)}${(post.title || '').length > 60 ? '...' : ''}</div></div></td>
           <td><span class="cat-badge">${post.section || (post.categories || ['—'])[0]}</span></td>
           <td class="date-cell">${dateStr}</td>
           <td class="img-count">${post.image_count || 0}</td>
-          <td><div class="actions-cell"><button class="action-btn edit-btn" data-id="${post.id}" title="تعديل" aria-label="تعديل المقال"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${post.id}" title="حذف" aria-label="حذف المقال"><i class="fas fa-trash-alt"></i></button></div></td>
+          <td><div class="actions-cell"><button class="action-btn edit-btn" data-id="${post.id}" title="تعديل"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${post.id}" title="حذف"><i class="fas fa-trash-alt"></i></button></div></td>
         `;
         tbody.appendChild(tr);
       });
@@ -1218,18 +1237,7 @@
   });
 
   function openModal() { $('postModal').classList.add('open'); }
-  function closeModal() { 
-    $('postModal').classList.remove('open');
-    // تنظيف المعاينات
-    $('thumbPreview').classList.remove('show');
-    $('galleryPreview').innerHTML = '';
-    $('thumbFileInput').value = '';
-    $('galleryFileInput').value = '';
-    $('pdfFileInput').value = '';
-    $('thumbFileName').textContent = 'لم يتم اختيار ملف';
-    $('galleryFileName').textContent = 'لم يتم اختيار ملفات';
-    $('pdfFileName').textContent = 'لم يتم اختيار ملف';
-  }
+  function closeModal() { $('postModal').classList.remove('open'); }
 
   $('newPostBtn').addEventListener('click', () => {
     $('editId').value = '';
@@ -1396,7 +1404,8 @@
     if (!validateForm()) return;
     const id = $('editId').value;
     await savePosts(id ? 'تم تحديث المقال بنجاح' : 'تم نشر المقال بنجاح');
-    // التحديث يتم داخل savePosts بعد التأخير
+    await loadPosts();
+    renderTable();
     closeModal();
   });
 
@@ -1407,7 +1416,8 @@
     const id = state.deleteTargetId;
     state.postsData.posts = state.postsData.posts.filter(p => p.id != id);
     await savePosts('تم حذف المقال');
-    // التحديث يتم داخل savePosts
+    await loadPosts();
+    renderTable();
     state.deleteTargetId = null;
   });
 
