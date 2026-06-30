@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Abydos • جاري التحميل…</title>
   <meta name="description" content="">
-  <meta name="theme-color" content="#0f1e3a">
+  <meta name="theme-color" content="#0a1a2b">
 
   <meta property="og:title" content="" id="og-title">
   <meta property="og:description" content="" id="og-desc">
@@ -25,22 +25,23 @@
       height: 3px; background: var(--clr-border); z-index: 900; pointer-events: none;
     }
     #reading-progress-bar {
-      height: 100%; background: linear-gradient(90deg, var(--clr-navy-light), var(--clr-gold));
+      height: 100%; background: linear-gradient(90deg, var(--clr-gold-dark), var(--clr-gold), var(--clr-gold-light));
       width: 0%; transition: width 80ms linear;
     }
     .related-section {
       background: var(--clr-sand-light); padding: var(--sp-12) 0; margin-top: var(--sp-12);
+      border-top: 2px solid var(--clr-border-gold);
     }
     .related-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--sp-5); margin-top: var(--sp-8);
     }
     .related-card {
-      background: var(--clr-surface); border-radius: var(--radius-lg); overflow: hidden; cursor: pointer;
+      background: #ffffff; border-radius: var(--radius-lg); overflow: hidden; cursor: pointer;
       border: 1px solid var(--clr-border); transition: all var(--dur-mid) var(--ease-smooth);
       display: flex; flex-direction: column;
     }
     .related-card:hover {
-      transform: translateY(-6px); box-shadow: var(--shadow-md); border-color: var(--clr-border-gold);
+      transform: translateY(-6px); box-shadow: var(--shadow-md); border-color: var(--clr-gold);
     }
     .related-card .post-img { height: 170px; }
     .related-card .post-content { padding: var(--sp-4) var(--sp-5); }
@@ -61,7 +62,6 @@
     }
     .article-error i { font-size: 3rem; color: var(--clr-gold); }
     .article-error h2 { font-family: var(--font-display); font-size: 1.5rem; color: var(--clr-text-primary); }
-    .article-error p { color: var(--clr-text-muted); font-size: 0.9rem; }
     @media (max-width: 680px) {
       .share-buttons { flex-wrap: wrap; }
       .related-grid { grid-template-columns: 1fr; }
@@ -74,14 +74,12 @@
   <div id="reading-progress"><div id="reading-progress-bar"></div></div>
   <button id="back-to-top" aria-label="العودة للأعلى"><i class="fas fa-arrow-up"></i></button>
 
-  <!-- ===== NAVBAR ===== -->
-  <nav class="navbar" role="navigation" aria-label="التنقل الرئيسي">
+  <!-- ===== النافبار ===== -->
+  <nav class="navbar" style="background:var(--clr-navy-dark);border-bottom:2px solid var(--clr-gold);">
     <div class="nav-container">
-      <a href="index.html" class="logo" aria-label="Abydos الرئيسية">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <i class="fas fa-ankh" style="font-size:1.5rem;color:var(--clr-gold);"></i>
-          <span style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:#fdf6ec;">ABYDOS</span>
-        </div>
+      <a href="index.html" class="logo" aria-label="Abydos الرئيسية" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+        <i class="fas fa-ankh" style="font-size:1.5rem;color:var(--clr-gold);"></i>
+        <span style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:#fdf6ec;letter-spacing:2px;">ABYDOS</span>
       </a>
       <div class="nav-links">
         <a href="index.html" class="nav-link"><i class="fas fa-home"></i> الرئيسية</a>
@@ -97,10 +95,10 @@
     </div>
   </nav>
 
-  <!-- ===== ARTICLE CONTAINER ===== -->
+  <!-- ===== حاوية المقال ===== -->
   <div id="articleContainer"><div class="article-loading"><i class="fas fa-spinner"></i><p>جاري تحميل المقال…</p></div></div>
 
-  <!-- ===== RELATED POSTS ===== -->
+  <!-- ===== مقالات ذات صلة ===== -->
   <section class="related-section" id="relatedSection" style="display:none" aria-label="مقالات ذات صلة">
     <div class="container">
       <div class="section-header">
@@ -112,13 +110,13 @@
     </div>
   </section>
 
-  <!-- ===== FOOTER ===== -->
-  <footer class="footer" role="contentinfo">
+  <!-- ===== الفوتر ===== -->
+  <footer class="footer">
     <div class="footer-container">
       <div class="footer-about">
-        <a href="index.html" class="logo" style="margin-bottom:1rem;text-decoration:none;display:flex;align-items:center;gap:10px;">
+        <a href="index.html" class="logo" style="text-decoration:none;display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
           <i class="fas fa-ankh" style="font-size:1.8rem;color:var(--clr-gold);"></i>
-          <span style="font-family:var(--font-display);font-size:1.6rem;font-weight:900;color:#fdf6ec;">ABYDOS</span>
+          <span style="font-family:var(--font-display);font-size:1.6rem;font-weight:900;color:#fdf6ec;letter-spacing:2px;">ABYDOS</span>
         </a>
         <p>مدونة تستكشف عمق الحضارة المصرية، من أهرامات الجيزة إلى معابد أبيدوس، ومن فلسفة الفراعنة إلى إبداعات العصر الحديث.</p>
         <div class="footer-social">
@@ -142,7 +140,7 @@
     <div class="footer-bottom"><p>&copy; 2025 Abydos. جميع الحقوق محفوظة.</p><div><a href="#">سياسة الخصوصية</a> &nbsp;·&nbsp; <a href="#">شروط الاستخدام</a></div></div>
   </footer>
 
-  <!-- ===== SEARCH OVERLAY ===== -->
+  <!-- ===== البحث ===== -->
   <div class="search-overlay" id="searchOverlay" role="dialog" aria-modal="true">
     <div class="search-modal">
       <div class="search-input-wrap">
@@ -158,7 +156,6 @@
   (function() {
     'use strict';
 
-    /* ─── Utilities ─────────────────────────────── */
     function formatDate(d) {
       try { return new Date(d).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' }); }
       catch (_) { return d; }
@@ -166,10 +163,9 @@
     function excerpt(s, n) { return s && s.length > n ? s.substring(0, n) + '…' : (s || ''); }
     function stripHtml(h) { const t = document.createElement('div'); t.innerHTML = h; return t.textContent || ''; }
     function readingTime(c) { return Math.max(1, Math.ceil(stripHtml(c || '').trim().split(/\s+/).length / 150)) + ' دقيقة'; }
-    function thumb(u) { return u && u.trim() ? u : 'https://placehold.co/600x400/0f1e3a/d4a237?text=Abydos'; }
+    function thumb(u) { return u && u.trim() ? u : 'https://placehold.co/600x400/0a1a2b/d4a237?text=Abydos'; }
     function debounce(fn, w) { let t; return function (...a) { clearTimeout(t); t = setTimeout(() => fn.apply(this, a), w); }; }
 
-    /* ─── Data ──────────────────────────────────── */
     let allPosts = [];
     async function fetchPosts() {
       const res  = await fetch('posts.json');
@@ -179,7 +175,6 @@
       return allPosts;
     }
 
-    /* ─── Reading Progress ──────────────────────── */
     function initReadingProgress() {
       const bar      = document.getElementById('reading-progress-bar');
       const scrollPr = document.getElementById('scroll-progress');
@@ -200,7 +195,6 @@
       if (backTop) backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     }
 
-    /* ─── Render Article ────────────────────────── */
     function renderArticle(post) {
       document.title = `${post.title} • Abydos`;
       document.querySelector('meta[name="description"]').content = excerpt(stripHtml(post.content_preview || post.content || ''), 160);
@@ -209,7 +203,7 @@
 
       const pageUrl = window.location.href;
       const cats    = post.categories || ['عام'];
-      const content = post.content || post.content_preview || '<p>المحتوى غير متوفر حالياً، سيتم تحديثه قريباً.</p>';
+      const content = post.content || post.content_preview || '<p>المحتوى غير متوفر حالياً.</p>';
 
       const html = `
         <article class="article-container" itemscope itemtype="https://schema.org/Article">
@@ -264,7 +258,6 @@
       }
     }
 
-    /* ─── Render Related Posts ──────────────────── */
     function renderRelated(currentPost) {
       const section = document.getElementById('relatedSection');
       const grid    = document.getElementById('relatedGrid');
@@ -292,7 +285,6 @@
       });
     }
 
-    /* ─── Footer Categories ─────────────────────── */
     function renderFooterCategories() {
       const list = document.querySelector('#footerCategories ul');
       if (!list) return;
@@ -300,7 +292,6 @@
       list.innerHTML = SECTIONS.map(c => `<li><a href="category.html?cat=${encodeURIComponent(c)}">${c}</a></li>`).join('');
     }
 
-    /* ─── Search ────────────────────────────────── */
     function setupSearch() {
       const overlay  = document.getElementById('searchOverlay');
       const input    = document.getElementById('searchInput');
@@ -327,7 +318,6 @@
       input.addEventListener('input', e => doSearch(e.target.value.trim().toLowerCase()));
     }
 
-    /* ─── Newsletter ────────────────────────────── */
     function setupNewsletter() {
       const form = document.getElementById('newsletterForm');
       if (!form) return;
@@ -335,12 +325,11 @@
         e.preventDefault();
         const btn = form.querySelector('button');
         btn.innerHTML = '<i class="fas fa-check"></i>';
-        btn.style.background = '#2a406a';
+        btn.style.background = '#1a3a5a';
         setTimeout(() => { btn.innerHTML = '<i class="fas fa-paper-plane"></i>'; btn.style.background = ''; form.reset(); }, 2500);
       });
     }
 
-    /* ─── Init ──────────────────────────────────── */
     async function init() {
       initReadingProgress();
       setupSearch();
